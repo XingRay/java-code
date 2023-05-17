@@ -9,7 +9,7 @@
         <version>1.0.0</version>
     </parent>
 
-    <artifactId>java-generator</artifactId>
+    <artifactId>code-common</artifactId>
 
     <properties>
         <maven.compiler.source>20</maven.compiler.source>
@@ -20,7 +20,7 @@
     <dependencies>
         <dependency>
             <groupId>com.xingray</groupId>
-            <artifactId>java-lang</artifactId>
+            <artifactId>java-util</artifactId>
         </dependency>
     </dependencies>
 

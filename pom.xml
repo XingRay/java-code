@@ -24,6 +24,8 @@
         <module>project-generator-sql-mybatisplus</module>
         <module>project-generator-ui</module>
         <module>project-maven</module>
+        <module>code-common</module>
+        <module>java-generator-velocity</module>
     </modules>
 
     <properties>
@@ -72,6 +74,12 @@
 
             <dependency>
                 <groupId>com.xingray</groupId>
+                <artifactId>java-interfaces</artifactId>
+                <version>${java-common.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.xingray</groupId>
                 <artifactId>project-maven</artifactId>
                 <version>${java-code.version}</version>
             </dependency>
@@ -85,6 +93,30 @@
             <dependency>
                 <groupId>com.xingray</groupId>
                 <artifactId>project-generator-sql</artifactId>
+                <version>${java-code.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.xingray</groupId>
+                <artifactId>java-lang</artifactId>
+                <version>${java-code.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.xingray</groupId>
+                <artifactId>java-generator</artifactId>
+                <version>${java-code.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.xingray</groupId>
+                <artifactId>java-parser</artifactId>
+                <version>${java-code.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.xingray</groupId>
+                <artifactId>code-common</artifactId>
                 <version>${java-code.version}</version>
             </dependency>
 
@@ -116,6 +148,12 @@
                 <groupId>com.fasterxml.jackson.core</groupId>
                 <artifactId>jackson-annotations</artifactId>
                 <version>2.14.2</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.velocity</groupId>
+                <artifactId>velocity-engine-core</artifactId>
+                <version>2.3</version>
             </dependency>
 
         </dependencies>

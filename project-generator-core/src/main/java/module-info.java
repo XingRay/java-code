@@ -9,10 +9,12 @@ module com.xingray.project.generator.core {
 
     requires com.xingray.project.maven;
     requires com.xingray.java.util;
+    requires com.xingray.code.common;
+    requires com.xingray.java.command;
 
     exports com.xingray.project.generator.core.entity;
     exports com.xingray.project.generator.core.generator;
     exports com.xingray.project.generator.core.generator.impl;
-    exports com.xingray.project.generator.core.maven;
-    exports com.xingray.project.generator.core.gradle;
+    exports com.xingray.project.generator.core.build.maven;
+    exports com.xingray.project.generator.core.build.gradle;
 }
