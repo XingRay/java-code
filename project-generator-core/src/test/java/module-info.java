@@ -3,6 +3,8 @@ module com.xingray.java.project.generator.test {
     requires com.xingray.project.generator.core;
     requires com.xingray.project.maven;
     requires com.xingray.code.common;
+    requires com.xingray.java.generator.velocity;
+    requires com.xingray.java.util;
 
     requires com.fasterxml.jackson.core;
     requires com.fasterxml.jackson.dataformat.xml;

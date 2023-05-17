@@ -75,5 +75,11 @@
             <scope>test</scope>
         </dependency>
 
+        <dependency>
+            <groupId>com.xingray</groupId>
+            <artifactId>java-generator-velocity</artifactId>
+            <scope>test</scope>
+        </dependency>
+
     </dependencies>
 </project>

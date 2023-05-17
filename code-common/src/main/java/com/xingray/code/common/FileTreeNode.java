@@ -73,7 +73,7 @@ public class FileTreeNode {
                 "name='" + name + '\'' +
                 ", content='" + content + '\'' +
                 ", children=" + children +
-                ", parent=" + parent +
+                ", parent=" + (parent == null ? "null" : parent.getName()) +
                 ", isNode=" + isNode +
                 '}';
     }
@@ -93,6 +93,29 @@ public class FileTreeNode {
 
     public static FileTreeNode createTree(String name) {
         return new FileTreeNode(name, null, null, null, false);
+    }
+
+    public static FileTreeNode createTree(String... names) {
+        FileTreeNode root = createTree(names[0]);
+        FileTreeNode current = root;
+        for (int i = 1; i < names.length; i++) {
+            FileTreeNode child = createTree(names[i]);
+            current.addChild(child);
+            current = child;
+        }
+        return root;
+    }
+
+    public static FileTreeNode createTree(String[]names, FileTreeNode node) {
+        FileTreeNode root = createTree(names[0]);
+        FileTreeNode current = root;
+        for (int i = 1; i < names.length; i++) {
+            FileTreeNode child = createTree(names[i]);
+            current.addChild(child);
+            current = child;
+        }
+        current.addChild(node);
+        return root;
     }
 
     public static FileTreeNode createTree(FileTreeNode parent, String name) {

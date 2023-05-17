@@ -29,16 +29,6 @@ public class ProjectGeneratorImpl implements ProjectGenerator {
             sourceCodeRootNode.addChild(child);
         });
 
-
-//        String packageName = project.getGroupId() + "." + project.getArtifactId().replaceAll("-", ".");
-//        String mainClassName = "Main";
-//
-//        String[] packageNames = packageName.split("\\.");
-//        FileTreeNode packageRootTree = sourceCodeRootNode.addAndGetDescendantTree(packageNames);
-//
-//        String content = generateCode(packageName, mainClassName);
-//        packageRootTree.addChildNode(mainClassName + ".java", content);
-
         FileTreeNode buildSystemFile = project.generatorBuildSystemFile();
         projectRootTree.addChild(buildSystemFile);
 

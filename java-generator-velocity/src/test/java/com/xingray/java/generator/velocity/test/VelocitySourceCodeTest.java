@@ -6,10 +6,7 @@ import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 public class VelocitySourceCodeTest {
     @Test
@@ -31,7 +28,8 @@ public class VelocitySourceCodeTest {
 
         map.put("columns", columnList);
 
-        VelocitySourceCode userEntity = new VelocitySourceCode("UserEntity", "Entity.java.vm", map);
+        Properties properties = VelocitySourceCode.ofClassPath(VelocitySourceCodeTest.class, "/template");
+        VelocitySourceCode userEntity = new VelocitySourceCode(properties,"com.xingray.test",  "UserEntity", "Entity.java.vm", map);
         try {
             userEntity.get().write(new File("target/generated-codes"));
         } catch (IOException e) {

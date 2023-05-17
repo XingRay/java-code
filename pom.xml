@@ -104,6 +104,12 @@
 
             <dependency>
                 <groupId>com.xingray</groupId>
+                <artifactId>java-generator-velocity</artifactId>
+                <version>${java-code.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.xingray</groupId>
                 <artifactId>java-generator</artifactId>
                 <version>${java-code.version}</version>
             </dependency>
