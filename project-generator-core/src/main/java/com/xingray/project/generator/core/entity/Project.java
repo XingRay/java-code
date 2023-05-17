@@ -1,15 +1,19 @@
 package com.xingray.project.generator.core.entity;
 
+import com.xingray.code.common.FileTreeNode;
+import com.xingray.project.generator.core.generator.ProjectGenerator;
+
+import java.io.File;
+import java.util.List;
+import java.util.function.Supplier;
+
 public class Project {
     private String name;
-    private String location;
-    private Language language;
+    private File location;
     private BuildSystem buildSystem;
-    private String groupId;
-    private String artifactId;
-    private String version;
-
-    private String mainClass;
+    private List<Module> moduleList;
+    private List<Supplier<FileTreeNode>> sourceCodeList;
+    private ProjectGenerator projectGenerator;
 
     public String getName() {
         return name;
@@ -19,20 +23,12 @@ public class Project {
         this.name = name;
     }
 
-    public String getLocation() {
+    public File getLocation() {
         return location;
     }
 
-    public void setLocation(String location) {
+    public void setLocation(File location) {
         this.location = location;
-    }
-
-    public Language getLanguage() {
-        return language;
-    }
-
-    public void setLanguage(Language language) {
-        this.language = language;
     }
 
     public BuildSystem getBuildSystem() {
@@ -43,70 +39,68 @@ public class Project {
         this.buildSystem = buildSystem;
     }
 
-    public String getGroupId() {
-        return groupId;
+    public List<Module> getModuleList() {
+        return moduleList;
     }
 
-    public void setGroupId(String groupId) {
-        this.groupId = groupId;
+    public void setModuleList(List<Module> moduleList) {
+        this.moduleList = moduleList;
     }
 
-    public String getArtifactId() {
-        return artifactId;
+    public List<Supplier<FileTreeNode>> getSourceCodeList() {
+        return sourceCodeList;
     }
 
-    public void setArtifactId(String artifactId) {
-        this.artifactId = artifactId;
+    public void setSourceCodeList(List<Supplier<FileTreeNode>> sourceCodeList) {
+        this.sourceCodeList = sourceCodeList;
     }
 
-    public String getVersion() {
-        return version;
+    public ProjectGenerator getProjectGenerator() {
+        return projectGenerator;
     }
 
-    public void setVersion(String version) {
-        this.version = version;
+    public void setProjectGenerator(ProjectGenerator projectGenerator) {
+        this.projectGenerator = projectGenerator;
     }
 
-    public String getMainClass() {
-        return mainClass;
+    public FileTreeNode generate() {
+        return projectGenerator.generate(this);
     }
 
-    public void setMainClass(String mainClass) {
-        this.mainClass = mainClass;
+    public void build() {
+        buildSystem.build(location);
     }
 
-    @Override
-    public String toString() {
-        return "Project{" +
-                "name='" + name + '\'' +
-                ", location='" + location + '\'' +
-                ", language=" + language +
-                ", buildSystem=" + buildSystem +
-                ", groupId='" + groupId + '\'' +
-                ", artifactId='" + artifactId + '\'' +
-                ", version='" + version + '\'' +
-                ", mainClass='" + mainClass + '\'' +
-                '}';
+    public void run() {
+        buildSystem.run(location);
     }
 
-    public String[] getGav() {
-        return new String[]{groupId, artifactId, version};
+    public void clean() {
+        buildSystem.clean(location);
     }
 
-    public Project() {
+    public FileTreeNode generatorBuildSystemFile() {
+        return buildSystem.generatorBuildSystemFile();
     }
 
-    public Project(String groupId, String artifactId, String version) {
-        this.groupId = groupId;
-        this.artifactId = artifactId;
-        this.version = version;
-    }
+    //    public String[] getGav() {
+//        return new String[]{groupId, artifactId, version};
+//    }
+//
+//    public Project() {
+//    }
+//
+//    public Project(String groupId, String artifactId, String version) {
+//        this.groupId = groupId;
+//        this.artifactId = artifactId;
+//        this.version = version;
+//    }
 
-    public static Project ofGav(String[] gav) {
-        return new Project(gav[0], gav[1], gav[2]);
-    }
-
-    public static Project ofGav(String gav) {
-        return ofGav(gav.split(":"));
-    }
+//    public static Project ofGav(String[] gav) {
+//        return new Project(gav[0], gav[1], gav[2]);
+//    }
+//
+//    public static Project ofGav(String gav) {
+//        return ofGav(gav.split(":"));
+//    }
 }

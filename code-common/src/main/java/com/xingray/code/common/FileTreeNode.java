@@ -1,6 +1,8 @@
-package com.xingray.project.generator.core.entity;
+package com.xingray.code.common;
+
 
 import com.xingray.java.util.FileUtil;
+import com.xingray.java.util.collection.CollectionUtil;
 
 import java.io.File;
 import java.io.IOException;
@@ -9,7 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class FileTreeNode {
-    private File file;
+    private String name;
     private String content;
     private List<FileTreeNode> children;
 
@@ -17,12 +19,12 @@ public class FileTreeNode {
 
     private boolean isNode;
 
-    public File getFile() {
-        return file;
+    public String getName() {
+        return name;
     }
 
-    public void setNode(File node) {
-        this.file = node;
+    public void setName(String name) {
+        this.name = name;
     }
 
     public String getContent() {
@@ -57,8 +59,8 @@ public class FileTreeNode {
         this.parent = parent;
     }
 
-    public FileTreeNode(File file, String content, List<FileTreeNode> children, FileTreeNode parent, boolean isNode) {
-        this.file = file;
+    public FileTreeNode(String name, String content, List<FileTreeNode> children, FileTreeNode parent, boolean isNode) {
+        this.name = name;
         this.content = content;
         this.children = children;
         this.parent = parent;
@@ -68,67 +70,65 @@ public class FileTreeNode {
     @Override
     public String toString() {
         return "FileTreeNode{" +
-                "file=" + file +
-                ", content='" + (content == null ? "" : content.substring(0, 10)) + '\'' +
+                "name='" + name + '\'' +
+                ", content='" + content + '\'' +
                 ", children=" + children +
-                ", isFile=" + isNode +
+                ", parent=" + parent +
+                ", isNode=" + isNode +
                 '}';
     }
 
-    public static FileTreeNode createTree(String path) {
-        return createTree(new File(path));
-    }
-
-    public static FileTreeNode createTree(File file) {
-        return new FileTreeNode(file, null, new ArrayList<>(), null, false);
-    }
-
-    public static FileTreeNode createTree(FileTreeNode parent, String name) {
-        if (parent.isNode) {
-            throw new IllegalArgumentException("parent is node, only tree can add child");
-        }
-        File file = new File(parent.getFile(), name);
-        FileTreeNode node = new FileTreeNode(file, null, new ArrayList<>(), parent, false);
-        parent.getChildren().add(node);
-        return node;
-    }
-
-    public static FileTreeNode createNode(String path) {
-        return createNode(new File(path), null);
-    }
-
-    public static FileTreeNode createNode(File file) {
-        return createNode(file, null);
-    }
-
-    public static FileTreeNode createNode(File file, String content) {
-        return new FileTreeNode(file, content, null, null, true);
+    public static FileTreeNode createNode(String name, String content) {
+        return new FileTreeNode(name, content, null, null, true);
     }
 
     public static FileTreeNode createNode(FileTreeNode parent, String name, String content) {
         if (parent.isNode) {
             throw new IllegalArgumentException("parent is node, only tree can add child");
         }
-        File file = new File(parent.getFile(), name);
-        FileTreeNode node = new FileTreeNode(file, content, null, parent, true);
-        parent.getChildren().add(node);
+        FileTreeNode node = createNode(name, content);
+        parent.addChild(node);
         return node;
     }
 
-    public void write() throws IOException {
-        File parentDir = file.getParentFile();
-        if (!parentDir.exists()) {
-            parentDir.mkdirs();
+    public static FileTreeNode createTree(String name) {
+        return new FileTreeNode(name, null, null, null, false);
+    }
+
+    public static FileTreeNode createTree(FileTreeNode parent, String name) {
+        if (parent.isNode) {
+            throw new IllegalArgumentException("parent is node, only tree can add child");
         }
+
+        FileTreeNode node = createTree(name);
+        parent.addChild(node);
+        return node;
+    }
+
+    public void write(File location) throws IOException {
+        if (location.exists()) {
+            if (location.isFile()) {
+                location.delete();
+                location.mkdirs();
+            }
+        } else {
+            location.mkdirs();
+        }
+
+        File file = new File(location, name);
         FileUtil.deleteFileRecursive(file);
 
         if (isNode()) {
             file.createNewFile();
-            Files.writeString(file.toPath(), content == null ? "" : content);
+            if (content != null && content.length() > 0) {
+                Files.writeString(file.toPath(), content == null ? "" : content);
+            }
         } else {
-            file.mkdir();
-            for (FileTreeNode node : children) {
-                node.write();
+            file.mkdirs();
+            if (children != null && children.size() > 0) {
+                for (FileTreeNode node : children) {
+                    node.write(new File(location, name));
+                }
             }
         }
     }
@@ -138,7 +138,7 @@ public class FileTreeNode {
     }
 
     public FileTreeNode addChildTree(String name) {
-        addAndGetChildTree(name);
+        createTree(this, name);
         return this;
     }
 
@@ -155,7 +155,7 @@ public class FileTreeNode {
     }
 
     public FileTreeNode addChildNode(String name, String content) {
-        addAndGetChildNode(name, content);
+        createNode(this, name, content);
         return this;
     }
 
@@ -165,7 +165,7 @@ public class FileTreeNode {
 
     public FileTreeNode child(String name) {
         for (FileTreeNode node : children) {
-            if (node.getFile().getName().equals(name)) {
+            if (node.getName().equals(name)) {
                 return node;
             }
         }
@@ -195,7 +195,25 @@ public class FileTreeNode {
 
     public FileTreeNode addChild(FileTreeNode child) {
         child.setParent(this);
+        if (children == null) {
+            children = new ArrayList<>();
+        }
         children.add(child);
+        return this;
+    }
+
+    public FileTreeNode addChildren(List<FileTreeNode> nodeList) {
+        if (CollectionUtil.isEmpty(nodeList)) {
+            return this;
+        }
+        for (FileTreeNode child : nodeList) {
+            child.setParent(this);
+        }
+        if (children == null) {
+            children = new ArrayList<>(nodeList);
+        } else {
+            children.addAll(nodeList);
+        }
         return this;
     }
 }

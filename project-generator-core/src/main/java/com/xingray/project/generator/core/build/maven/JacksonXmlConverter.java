@@ -1,4 +1,4 @@
-package com.xingray.project.generator.core.maven;
+package com.xingray.project.generator.core.build.maven;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;

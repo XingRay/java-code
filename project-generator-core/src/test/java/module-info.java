@@ -2,6 +2,7 @@ module com.xingray.java.project.generator.test {
     requires org.junit.jupiter;
     requires com.xingray.project.generator.core;
     requires com.xingray.project.maven;
+    requires com.xingray.code.common;
 
     requires com.fasterxml.jackson.core;
     requires com.fasterxml.jackson.dataformat.xml;

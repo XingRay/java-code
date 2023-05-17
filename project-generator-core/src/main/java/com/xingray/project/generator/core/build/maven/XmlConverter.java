@@ -1,4 +1,4 @@
-package com.xingray.project.generator.core.maven;
+package com.xingray.project.generator.core.build.maven;
 
 public interface XmlConverter {
     String objectToXml(Object o);

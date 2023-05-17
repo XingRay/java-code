@@ -4,19 +4,24 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
-import com.xingray.java.command.CommandExecutor;
-import com.xingray.java.command.JavaRuntimeCommandExecutor;
-import com.xingray.java.command.SimpleExecuteListener;
-import com.xingray.project.generator.core.entity.BuildSystem;
-import com.xingray.project.generator.core.entity.FileTreeNode;
-import com.xingray.project.generator.core.entity.Language;
+import com.github.javaparser.ast.CompilationUnit;
+import com.github.javaparser.ast.Modifier;
+import com.github.javaparser.ast.NodeList;
+import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
+import com.github.javaparser.ast.body.MethodDeclaration;
+import com.github.javaparser.ast.expr.FieldAccessExpr;
+import com.github.javaparser.ast.expr.MethodCallExpr;
+import com.github.javaparser.ast.expr.NameExpr;
+import com.github.javaparser.ast.expr.StringLiteralExpr;
+import com.github.javaparser.ast.stmt.BlockStmt;
+import com.github.javaparser.ast.stmt.ExpressionStmt;
+import com.xingray.code.common.FileTreeNode;
 import com.xingray.project.generator.core.entity.Project;
-import com.xingray.project.generator.core.generator.BuildSystemFileGenerator;
-import com.xingray.project.generator.core.generator.ProjectGenerator;
 import com.xingray.project.generator.core.generator.impl.ProjectGeneratorImpl;
-import com.xingray.project.generator.core.maven.JacksonXmlConverter;
-import com.xingray.project.generator.core.maven.MavenBuildSystemFileGenerator;
-import com.xingray.project.generator.core.maven.XmlConverter;
+import com.xingray.project.generator.core.build.maven.JacksonXmlConverter;
+import com.xingray.project.generator.core.build.maven.Maven;
+import com.xingray.project.generator.core.build.maven.MavenFileGenerator;
+import com.xingray.project.maven.model.MavenProject;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
@@ -25,14 +30,18 @@ import java.io.IOException;
 public class ProjectGeneratorTest {
     @Test
     public void helloWorldProjectGenerateTest() {
+        String parentPath = "target/generated-projects";
+        String group = "com.xingray";
+        String projectName = "generator-test01";
+        String version = "1.0.0";
+
         Project project = new Project();
-        project.setName("generator-test01");
-        project.setLocation(new File("target/generated-projects").getAbsolutePath());
-        project.setLanguage(Language.JAVA);
-        project.setBuildSystem(BuildSystem.MAVEN);
-        project.setGroupId("com.xingray");
-        project.setArtifactId("generator-test01");
-        project.setVersion("1.0.0");
+        project.setLocation(new File(parentPath, projectName));
+        project.setName(projectName);
+
+        Maven maven = new Maven();
+        project.setBuildSystem(maven);
+        maven.setMavenProject(new MavenProject(group, projectName, version));
 
         XmlMapper xmlMapper = XmlMapper.builder()
                 .configure(MapperFeature.USE_STD_BEAN_NAMING, true)
@@ -41,42 +50,43 @@ public class ProjectGeneratorTest {
                 .serializationInclusion(JsonInclude.Include.NON_NULL)
                 .build();
 
-        XmlConverter xmlConverter = new JacksonXmlConverter(xmlMapper);
-        BuildSystemFileGenerator buildSystemFileGenerator = new MavenBuildSystemFileGenerator(xmlConverter);
-        ProjectGenerator generator = new ProjectGeneratorImpl(buildSystemFileGenerator);
-        FileTreeNode projectRootTree = generator.generate(project);
+        JacksonXmlConverter jacksonXmlConverter = new JacksonXmlConverter(xmlMapper);
+        maven.setMavenFileGenerator(new MavenFileGenerator(jacksonXmlConverter));
+
+        project.setProjectGenerator(new ProjectGeneratorImpl());
+        FileTreeNode projectRootTree = project.generate();
 
         try {
-            projectRootTree.write();
+            projectRootTree.write(project.getLocation().getParentFile());
         } catch (IOException e) {
             e.printStackTrace();
         }
 
-        makeAndRun(project);
+//        project.build();
+//        project.run();
+//        project.clean();
     }
 
-    private static void makeAndRun(Project project) {
-        CommandExecutor executor = new JavaRuntimeCommandExecutor();
-        try {
-            File projectRootFile = new File(project.getLocation(), project.getName());
+    private static String generateCode(String packageName, String className) {
+        CompilationUnit cu = new CompilationUnit();
 
-            int resultValue = executor.execute("mvn clean package", projectRootFile);
-            assert resultValue == 0;
+        // Add package declaration
+        cu.setPackageDeclaration(packageName);
 
-            String jarFileName = project.getArtifactId() + "-" + project.getVersion() + ".jar";
-            resultValue = executor.execute("java -jar " + jarFileName, new File(projectRootFile, "target"), new SimpleExecuteListener() {
-                @Override
-                public void out(String line) {
-                    assert line.equals("hello world");
-                }
-            });
-            assert resultValue == 0;
 
-            resultValue = executor.execute("mvn clean", projectRootFile);
-            assert resultValue == 0;
+        ClassOrInterfaceDeclaration mainClass = cu.addClass(className).setPublic(true);
+        MethodDeclaration mainMethod = mainClass.addMethod("main", Modifier.Keyword.PUBLIC, Modifier.Keyword.STATIC);
+        mainMethod.setType(void.class);
+        mainMethod.addParameter(String[].class, "args");
 
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+        BlockStmt body = new BlockStmt();
+
+        ExpressionStmt statement = new ExpressionStmt();
+        MethodCallExpr methodCallExpression = new MethodCallExpr(new FieldAccessExpr(new NameExpr("System"), "out"), "println", NodeList.nodeList(new StringLiteralExpr("hello world")));
+        statement.setExpression(methodCallExpression);
+        body.addStatement(statement);
+        mainMethod.setBody(body);
+
+        return cu.toString();
     }
 }

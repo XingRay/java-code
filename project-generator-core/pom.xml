@@ -55,8 +55,12 @@
 
         <dependency>
             <groupId>com.xingray</groupId>
+            <artifactId>code-common</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.xingray</groupId>
             <artifactId>java-command</artifactId>
-            <scope>test</scope>
         </dependency>
 
         <dependency>
